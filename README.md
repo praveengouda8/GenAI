@@ -53,12 +53,12 @@ The application adopts a modular ReAct architecture where LangGraph manages stat
 
 ```mermaid
 graph TD
-    User([👤 User / Terminal Input]) -->|Sends Query| MainLoop[🔄 Interactive Loop in main.py]
+    User([👤 User / Streamlit Web UI]) -->|Sends Query| MainLoop[🔄 Streamlit App in main.py]
     MainLoop -->|Passes Message| AgentExecutor[🤖 LangGraph ReAct Agent]
     
     subgraph LangGraph Agent Core
-        AgentExecutor --> LLM[🧠 ChatGroq LLM Engine\n'qwen/qwen3.6-27b']
-        LLM --> Decision{Requires Tool Call?}
+        AgentExecutor --> LLM[🧠 ChatGroq LLM Engine\n'llama-3.3-70b-versatile']
+        Decision{Requires Tool Call?}
         
         Decision -- Yes --> ToolRouter[🔀 Tool Execution Node]
         Decision -- No --> DirectResponse[📝 Direct Answer]
@@ -92,7 +92,7 @@ sequenceDiagram
     participant Groq as ChatGroq (LLM)
     participant Tools as Tool Functions
 
-    User->>App: Launches `python main.py`
+    User->>App: Launches `streamlit run main.py`
     App->>App: Loads .env variables (GROQ_API_KEY, GROQ_MODEL)
     App->>Agent: Initializes ChatGroq & binds registered tools
     
@@ -141,7 +141,7 @@ GenAI_KLEBCA/
 ├── .env                  # Environment configuration (API keys, model name) [Ignored in VCS]
 ├── .env.example          # Sample environment configuration template
 ├── .venv/                # Python virtual environment directory
-├── main.py               # Main application entry point, agent setup & CLI loop
+├── main.py               # Streamlit web application & LangGraph ReAct agent
 ├── requirements.txt      # Project dependencies list
 └── README.md             # Project documentation and setup guide
 ```
@@ -220,30 +220,15 @@ GROQ_MODEL=qwen/qwen3.6-27b
 
 ### 5. Run the Application
 
-Start the interactive chatbot:
+Start the Streamlit web application:
 
 ```bash
-python main.py
+streamlit run main.py
 ```
 
-#### Sample Interaction:
-```text
-Initializing Groq model: qwen/qwen3.6-27b...
-Welcome! I'm your PythonAIChatbot assistant. Type 'quit' to exit.
-You can ask me to perform calculations or chat with me.
+This will automatically open the application in your default web browser (usually at `http://localhost:8501`).
 
-You: Can you greet Alice?
-Tool has been called.
-
-Assistant: Hello Alice, I hope you are well today!
-
-You: What is 128 plus 256?
-Tool has been called.
-
-Assistant: The sum of 128 and 256 is 384.
-
-You: quit
-```
+You can choose different free-tier models (like `llama-3.3-70b-versatile`) from the sidebar, type messages in the chat input at the bottom, and observe the agent's real-time thoughts and tool execution logs as it answers your queries!
 
 ---
 
@@ -297,3 +282,4 @@ LangGraph automatically extracts the docstring and type hints to create the tool
 ## 📄 License
 
 This project is created for educational and experimental purposes under GenAI / KLE BCA coursework. Feel free to adapt and expand it for your agentic AI workflows.
+
