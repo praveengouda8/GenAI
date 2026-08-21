@@ -6,8 +6,18 @@ from langchain_groq import ChatGroq
 from langchain_core.tools import tool
 from langgraph.prebuilt import create_react_agent
 
-# Load environment variables
+# Load environment variables (for local development)
 load_dotenv()
+
+def get_groq_api_key() -> str:
+    """Resolve GROQ_API_KEY from Streamlit Secrets (cloud) or .env (local)."""
+    # st.secrets is available on Streamlit Community Cloud
+    try:
+        return st.secrets["GROQ_API_KEY"]
+    except (KeyError, FileNotFoundError):
+        pass
+    # Fallback: local .env via python-dotenv
+    return os.getenv("GROQ_API_KEY", "")
 
 # Define the tools
 @tool
@@ -56,9 +66,13 @@ if prompt := st.chat_input("Ask me anything..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     # Run agent
-    groq_key = os.getenv("GROQ_API_KEY")
+    groq_key = get_groq_api_key()
     if not groq_key:
-        st.error("Please set GROQ_API_KEY in your .env file.")
+        st.error(
+            "⚠️ **GROQ_API_KEY not found.** "
+            "\n- **Local:** Add it to your `.env` file. "
+            "\n- **Streamlit Cloud:** Add it under *App Settings → Secrets*."
+        )
     else:
         try:
             # Initialize model & agent
